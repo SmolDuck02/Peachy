@@ -1,0 +1,101 @@
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>Checkin Dashboard</h1>
+    <div class="period-selector">
+      <button [class.active]="selectedPeriod === 'day'" (click)="changePeriod('day')">Day</button>
+      <button [class.active]="selectedPeriod === 'week'" (click)="changePeriod('week')">Week</button>
+      <button [class.active]="selectedPeriod === 'month'" (click)="changePeriod('month')">Month</button>
+    </div>
+  </header>
+
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="spinner"></div>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="dashboard-content">
+    <div class="dashboard-card summary-cards">
+      <div class="summary-card">
+        <h3>Total Checkins</h3>
+        <p class="number">{{ checkins.length }}</p>
+      </div>
+      <div class="summary-card">
+        <h3>Total Works</h3>
+        <p class="number">{{ works.length }}</p>
+      </div>
+      <div class="summary-card">
+        <h3>Total Messages</h3>
+        <p class="number">{{ chats.length }}</p>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Recent Checkins -->
+      <div class="dashboard-card">
+        <h2>Recent Checkins</h2>
+        <div class="checkin-list">
+          <div *ngFor="let checkin of recentCheckins" class="checkin-item">
+            <div class="checkin-header">
+              <span class="mood-badge" [ngClass]="checkin.mood.toLowerCase()">{{ checkin.mood }}</span>
+              <span class="checkin-time">{{ checkin.timestamp | date:'short' }}</span>
+            </div>
+            <p class="checkin-message">{{ checkin.message }}</p>
+          </div>
+          <div *ngIf="recentCheckins.length === 0" class="empty-state">
+            No recent checkins found.
+          </div>
+        </div>
+      </div>
+
+       <!-- Recent Works -->
+      <div class="dashboard-card">
+        <h2>Recent Works</h2>
+        <div class="checkin-list">
+          <div *ngFor="let checkin of recentCheckins" class="checkin-item">
+            <div class="checkin-header">
+              <span class="mood-badge" [ngClass]="checkin.mood.toLowerCase()">{{ checkin.mood }}</span>
+              <span class="checkin-time">{{ checkin.timestamp | date:'short' }}</span>
+            </div>
+            <p class="checkin-message">{{ checkin.message }}</p>
+          </div>
+          <div *ngIf="recentCheckins.length === 0" class="empty-state">
+            No recent checkins found.
+          </div>
+        </div>
+      </div>
+
+      <!-- Mood Distribution -->
+      <div class="dashboard-card">
+        <h2>Mood Distribution</h2>
+        <div class="chart-container">
+          <div *ngFor="let mood of getKeyValuePairs(moodDistribution)" class="chart-bar">
+            <div class="bar-label">{{ mood.key }}</div>
+            <div class="bar" [style.width.%]="getPercentage(mood.value, getTotalCount(moodDistribution))">
+              {{ mood.value }}
+            </div>
+          </div>
+          <div *ngIf="getKeyValuePairs(moodDistribution).length === 0" class="empty-state">
+            No mood data available.
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Types -->
+      <div class="dashboard-card">
+        <h2>Work Type Distribution</h2>
+        <div class="chart-container">
+          <div *ngFor="let type of getKeyValuePairs(workTypeDistribution)" class="chart-bar">
+            <div class="bar-label">{{ type.key }}</div>
+            <div class="bar" [style.width.%]="getPercentage(type.value, getTotalCount(workTypeDistribution))">
+              {{ type.value }}
+            </div>
+          </div>
+          <div *ngIf="getKeyValuePairs(workTypeDistribution).length === 0" class="empty-state">
+            No work type data available.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
