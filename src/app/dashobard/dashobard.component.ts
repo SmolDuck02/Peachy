@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
+import { UserButtonComponent } from "../user-button/user-button.component";
 
 interface Chat {
   id: number;
@@ -27,7 +28,7 @@ interface Work {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, UserButtonComponent],
   templateUrl: './dashobard.component.html',
   styleUrls: ['./dashobard.component.scss'],
 })

@@ -68,7 +68,7 @@
   }
 
   .content {
-    display: flex;
+    
     justify-content: space-around;
     width: 100%;
     max-width: 700px;
@@ -170,10 +170,10 @@
 
 <main class="main">
   <div class="content">
-    <app-dashboard />
+    <!-- <app-dashboard /> -->
     <!-- <h2>Mood Trends</h2>
     <app-mood-chart [chartData]="moodChartData"></app-mood-chart>
     <app-mood-chart [chartData]="workChartData"></app-mood-chart> -->
+    <router-outlet />
   </div>
 </main>
-<router-outlet />

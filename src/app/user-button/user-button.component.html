@@ -1,0 +1,32 @@
+<div class="user-button-container">
+  <ng-container *ngIf="user; else loginButton">
+    <div class="user-info" (click)="toggleDropdown()">
+      <!-- <div class="avatar" *ngIf="user.photoURL">
+            <img [src]="user.photoURL" alt="User avatar" />
+          </div>
+          <div class="avatar" *ngIf="!user.photoURL">
+            {{ getUserInitials() }}
+          </div> -->
+      <span class="user-name">Hello, {{ user.displayName || "User" }}!</span>
+    </div>
+
+    <div
+      class="dropdown"
+      *ngIf="isDropdownOpen"
+   
+      clickOutside
+      (clickOutside)="closeDropdown()"
+    >
+      <div class="dropdown-item user-email">{{ user.email }}</div>
+      <div class="dropdown-divider"></div>
+      <div class="dropdown-item" (click)="navigateToDashboard()">Dashboard</div>
+      <div class="dropdown-item" (click)="navigateToProfile()">Profile</div>
+      <div class="dropdown-divider"></div>
+      <div class="dropdown-item logout" (click)="logout()">Logout</div>
+    </div>
+  </ng-container>
+
+  <ng-template #loginButton>
+    <button class="login-button" (click)="login()">Sign In</button>
+  </ng-template>
+</div>
