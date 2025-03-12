@@ -7,12 +7,12 @@ import { DashboardComponent } from './dashobard/dashobard.component';
 @Component({
   standalone: true,
   selector: 'app-root',
-  imports: [RouterOutlet, HttpClientModule, DashboardComponent],
+  imports: [RouterOutlet, HttpClientModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent  {
-  title = 'lesers';
+  title = 'Peachy';
 
   // moodChartData: { title: string; labels: string[]; values: number[] } = {
   //   title: 'Checkins by Mood Chart',
