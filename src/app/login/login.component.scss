@@ -25,3 +25,25 @@
     .google-btn:hover {
       background-color: #f5f5f5;
     }
+
+
+
+
+
+    // DISCORD
+    .discord-btn {
+      background-color: #5865F2;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .discord-btn:hover {
+      background-color: #4752C4;
+    }

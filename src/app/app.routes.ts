@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
+import { AuthCallbackComponent } from './auth-callback/auth-callback.component';
 import { AuthGuard } from './guards/auth.guard';
-
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -17,4 +17,14 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'auth/callback',
+    loadComponent: () =>
+      import('./auth-callback/auth-callback.component').then(
+        (c) => c.AuthCallbackComponent
+      ),
+      
+  },
+
+  { path: '**', redirectTo: '/login' },
 ];

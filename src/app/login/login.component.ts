@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { DiscordAuthService } from '../services/discord-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  constructor(private discordAuthService: DiscordAuthService) {}
+
   private authService = inject(AuthService);
 
   async login() {
@@ -19,5 +22,9 @@ export class LoginComponent {
     } catch (error) {
       console.error('Login failed', error);
     }
+  }
+
+  loginWithDiscord(): void {
+    this.discordAuthService.login();
   }
 }

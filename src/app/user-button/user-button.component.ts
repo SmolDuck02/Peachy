@@ -1,12 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { AuthService } from '../services/auth.service';
-import { NotificationService } from '../services/notification.service';
-import { Router } from '@angular/router';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { User } from '@angular/fire/auth';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ClickOutsideDirective } from '../directives/click-outside.directive';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { AuthService } from '../services/auth.service';
+import { DiscordAuthService } from '../services/discord-auth.service';
 
 interface UserSettings {
   emailNotifications: boolean;
@@ -62,9 +62,10 @@ interface UserSettings {
 export class UserButtonComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
-  private notificationService = inject(NotificationService);
+  private discordAuthService = inject(DiscordAuthService);
+  private platformId = inject(PLATFORM_ID);
 
-  user: User | null = null;
+  user: Partial<User> | null = null;
   isDropdownOpen = false;
   showSettings = false;
 
@@ -76,12 +77,25 @@ export class UserButtonComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.authService.user$.subscribe((user) => {
-      this.user = user;
-      if (user) {
-        this.loadUserSettings();
-      }
-    });
+    if (this.discordAuthService.isAuthenticated()) {
+      this.discordAuthService.getUserInfo().subscribe((user) => {
+        console.log('Authenticated user:', user);
+        const formattedUser = {
+          displayName: user.global_name,
+          email: user.email,
+          uid: user.id,
+        };
+        this.user = formattedUser as Partial<User>;
+        // this.router.navigate(['/dashboard']);
+      });
+    } else {
+      this.authService.user$.subscribe((user) => {
+        this.user = user;
+        if (user) {
+          this.loadUserSettings();
+        }
+      });
+    }
   }
 
   toggleDropdown(): void {
@@ -110,33 +124,26 @@ export class UserButtonComponent implements OnInit {
   async login(): Promise<void> {
     try {
       await this.authService.loginWithGoogle();
-      this.notificationService.showNotification(
-        'Successfully signed in',
-        'success'
-      );
+    
     } catch (error: any) {
       console.error('Login failed', error);
-      this.notificationService.showNotification(
-        error.message || 'Failed to sign in. Please try again.',
-        'error'
-      );
+    
     }
   }
 
   async logout(): Promise<void> {
     try {
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.removeItem('discord_token');
+        localStorage.removeItem('discord_refresh_token');
+        localStorage.removeItem('discord_token_expiry');
+      }
       await this.authService.logout();
       this.isDropdownOpen = false;
-      this.notificationService.showNotification(
-        'Successfully signed out',
-        'success'
-      );
+   
     } catch (error: any) {
       console.error('Logout failed', error);
-      this.notificationService.showNotification(
-        error.message || 'Failed to sign out. Please try again.',
-        'error'
-      );
+   
     }
   }
 
@@ -174,18 +181,11 @@ export class UserButtonComponent implements OnInit {
           `user_settings_${this.user.uid}`,
           JSON.stringify(this.userSettings)
         );
-        this.notificationService.showNotification(
-          'Settings saved',
-          'success',
-          2000
-        );
+      
       }
     } catch (e) {
       console.error('Error saving user settings', e);
-      this.notificationService.showNotification(
-        'Failed to save settings',
-        'error'
-      );
+     
     }
   }
 }
