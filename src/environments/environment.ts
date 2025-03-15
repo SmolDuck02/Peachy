@@ -9,5 +9,6 @@ export const environment = {
     appId: '1:997634715061:web:f47999e787f5216365bdfc',
     measurementId: 'G-Y6N6RJWN2Q',
   },
+  API_ENDPOINT:"https://backend-peachy.onrender.com"
 };
 
