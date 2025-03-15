@@ -8,7 +8,7 @@ import { ClickOutsideDirective } from '../directives/click-outside.directive';
 import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
 
-interface UserSettings {
+export interface UserSettings {
   emailNotifications: boolean;
   darkMode: boolean;
   language: string;

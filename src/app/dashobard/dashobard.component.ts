@@ -1,9 +1,17 @@
 // dashboard.component.ts
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { UserButtonComponent } from "../user-button/user-button.component";
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Router } from '@angular/router';
+import { User } from 'firebase/auth';
+import { catchError, forkJoin, of } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { AuthService } from '../services/auth.service';
+import { DiscordAuthService } from '../services/discord-auth.service';
+import {
+  UserButtonComponent,
+  UserSettings,
+} from '../user-button/user-button.component';
 
 interface Chat {
   id: number;
@@ -45,36 +53,92 @@ export class DashboardComponent implements OnInit {
   selectedPeriod = 'week';
 
   constructor(private http: HttpClient) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private discordAuthService = inject(DiscordAuthService);
+  private platformId = inject(PLATFORM_ID);
+
+  user: Partial<User> | null = null;
+  isDropdownOpen = false;
+  showSettings = false;
+
+  userSettings: UserSettings = {
+    emailNotifications: true,
+    darkMode: false,
+    language: 'en',
+    timezone: 'UTC',
+  };
 
   ngOnInit(): void {
-    this.loadData();
+    if (this.discordAuthService.isAuthenticated()) {
+      this.discordAuthService.getUserInfo().subscribe((user) => {
+        const formattedUser = {
+          displayName: user.global_name,
+          email: user.email,
+          uid: user.id,
+        };
+        this.user = formattedUser as Partial<User>;
+        this.loadData();
+      });
+    } else {
+      this.authService.user$.subscribe((user) => {
+        this.user = user;
+        if (user) {
+          this.loadUserSettings();
+          this.loadData();
+        }
+      });
+    }
   }
 
   loadData(): void {
     this.isLoading = true;
+    console.log(this.user, 'uu');
 
-    //TODO implement auth and use user id to fetch data
     // Make API calls to fetch data from all tables
     forkJoin({
-      chats: this.http.get<Chat[]>('/api/chats'),
-      checkins: this.http.get<Checkin[]>('/api/checkins'),
-      works: this.http.get<Work[]>('/api/works'),
+      checkins: this.http
+        .get<Checkin[]>(
+          `${environment.API_ENDPOINT}/checkins/checkins-by-mood/${this.user?.uid}`
+        )
+        .pipe(
+          catchError((error) => {
+            console.error('Error fetching checkins:', error);
+            return of([{ id: 2, mood: 'lethargic', message_id: 1 }]); // Fallback mock data
+          })
+        ),
+      works: this.http
+        .get<Work[]>(
+          `${environment.API_ENDPOINT}/works/works-by-type/${this.user?.uid}`
+        )
+        .pipe(
+          catchError((error) => {
+            console.error('Error fetching works:', error);
+            return of([{ id: 2, type: 'personal', message_id: 1 }]); // Fallback mock data
+          })
+        ),
     }).subscribe((data) => {
-      this.chats = [
-        {
-          id: 1,
-          user_id: '12',
-          role: 'user',
-          message: 'hi hello',
-          timestamp: '2025-03-06T12:34:56+05:30',
-        },
-      ];
-      this.checkins = [{ id: 2, mood: 'lethargic', message_id: 1 }];
-      this.works = [{ id: 2, type: 'lethargic', message_id: 1 }];
+      this.checkins = data.checkins;
+      this.works = data.works;
 
       this.processData();
       this.isLoading = false;
     });
+  }
+
+  // User settings methods
+  loadUserSettings(): void {
+    // In a real app, load from a database or localStorage
+    const savedSettings = localStorage.getItem(
+      `user_settings_${this.user?.uid}`
+    );
+    if (savedSettings) {
+      try {
+        this.userSettings = JSON.parse(savedSettings);
+      } catch (e) {
+        console.error('Error parsing user settings', e);
+      }
+    }
   }
 
   processData(): void {
