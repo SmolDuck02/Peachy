@@ -42,7 +42,7 @@ export class AuthCallbackComponent implements OnInit {
             (Date.now() + response.expires_in * 1000).toString()
           );
           console.log(localStorage);
-          // this.router.navigate(['/dashboard']); // Redirect after login
+          this.router.navigate(['/dashboard']); // Redirect after login
         });
       }
     });
@@ -50,38 +50,3 @@ export class AuthCallbackComponent implements OnInit {
 
   
 }
-// export class AuthCallbackComponent {
-//   private route = inject(ActivatedRoute);
-//   private router = inject(Router);
-//   private authService = inject(DiscordAuthService);
-//   private platformId = inject(PLATFORM_ID);
-
-//   constructor() {
-//     this.route.queryParams.subscribe((params) => {
-//       const code = params['code'];
-//       if (code) {
-//         console.log(code);
-
-//         this.authService.getToken(code).subscribe((response) => {
-//           console.log(response, this.platformId);
-//           // if (response) {
-//           //   this.authService.getUserInfo(response.access_token).subscribe(
-//           //     (user) => {
-//           //       console.log('Authenticated user:', user);
-//           //       // this.router.navigate(['/dashboard']);
-//           //     },
-//           //     (error) => {
-//           //       console.error('Error getting user info:', code, error);
-//           //       this.router.navigate(['/login']);
-//           //     }
-//           //   );
-//           // } else {
-//           //   this.router.navigate(['/login']);
-//           // }
-//         });
-//       } else {
-//         // this.router.navigate(['/login']);
-//       }
-//     });
-//   }
-// }
