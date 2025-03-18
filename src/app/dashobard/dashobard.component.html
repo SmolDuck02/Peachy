@@ -1,6 +1,9 @@
 <!-- dashboard.component.html -->
 <div class="dashboard-container">
-  <app-user-button />
+  <div class="dashboard-header-buttons">
+    <app-user-button />
+    <app-modal-button />
+  </div>
   <header class="dashboard-header">
     <h1 style="padding-left: 10px">Checkin Dashboard</h1>
     <div class="period-selector">
@@ -72,19 +75,19 @@
       <div class="dashboard-card">
         <h2>Recent Works</h2>
         <div class="checkin-list">
-          <div *ngFor="let checkin of recentCheckins" class="checkin-item">
+          <div *ngFor="let work of recentWorks" class="checkin-item">
             <div class="checkin-header">
-              <span class="mood-badge" [ngClass]="checkin.mood.toLowerCase()">{{
-                checkin.mood
+              <span class="mood-badge" [ngClass]="work.type.toLowerCase()">{{
+                work.type
               }}</span>
               <span class="checkin-time">{{
-                checkin.timestamp | date : "short"
+                work.timestamp | date : "short"
               }}</span>
             </div>
-            <p class="checkin-message">{{ checkin.message }}</p>
+            <p class="checkin-message">{{ work.message }}</p>
           </div>
-          <div *ngIf="recentCheckins.length === 0" class="empty-state">
-            No recent checkins found.
+          <div *ngIf="recentWorks.length === 0" class="empty-state">
+            No recent works found.
           </div>
         </div>
       </div>

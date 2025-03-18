@@ -12,6 +12,7 @@ import {
   UserButtonComponent,
   UserSettings,
 } from '../user-button/user-button.component';
+import { ModalButtonComponent } from "../modal-button/modal-button.component";
 
 interface Chat {
   id: number;
@@ -36,7 +37,7 @@ interface Work {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, UserButtonComponent],
+  imports: [CommonModule, HttpClientModule, UserButtonComponent, ModalButtonComponent],
   templateUrl: './dashobard.component.html',
   styleUrls: ['./dashobard.component.scss'],
 })
@@ -46,6 +47,7 @@ export class DashboardComponent implements OnInit {
   works: Work[] = [];
 
   recentCheckins: any[] = [];
+  recentWorks: any[] = [];
   moodDistribution: any = {};
   workTypeDistribution: any = {};
 
@@ -93,7 +95,6 @@ export class DashboardComponent implements OnInit {
 
   loadData(): void {
     this.isLoading = true;
-    console.log(this.user, 'uu');
 
     // Make API calls to fetch data from all tables
     forkJoin({
@@ -150,6 +151,24 @@ export class DashboardComponent implements OnInit {
         );
         return {
           ...checkin,
+          message: relatedChat?.message || '',
+          timestamp: relatedChat?.timestamp || '',
+          user_id: relatedChat?.user_id || '',
+        };
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
+      .slice(0, 10);
+
+    this.recentWorks = this.works
+      .map((work) => {
+        const relatedChat = this.chats.find(
+          (chat) => chat.id === work.message_id
+        );
+        return {
+          ...work,
           message: relatedChat?.message || '',
           timestamp: relatedChat?.timestamp || '',
           user_id: relatedChat?.user_id || '',
