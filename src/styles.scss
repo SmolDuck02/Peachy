@@ -1,1 +1,49 @@
 /* You can add global styles to this file, and also import other style files */
+ :root {
+      --primary-color: #00f0ff;
+      --accent-color: #e100ff;
+      --dark-bg: #c1cbf3;
+      // --dark-bg: #050512;
+      --card-bg: #cdd7fc;
+      // --card-bg: rgba(18, 18, 30, 0.7);
+      --text-color: #000;
+     --font-family: 'Montserrat', 'SF Pro Display', system-ui, sans-serif;
+
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--font-family);
+      background-color: var(--dark-bg);
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      overflow: auto;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgb(70, 117, 234);
+      // background: var(--primary-color);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary-color);
+      animation: float 6s infinite linear;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+    }
+    

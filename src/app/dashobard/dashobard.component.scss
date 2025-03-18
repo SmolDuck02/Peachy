@@ -1,9 +1,11 @@
 /* dashboard.component.scss */
 .dashboard-container {
-  max-width: 1200px;
+  width: 600px;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 20px;
   font-family: 'Roboto', Arial, sans-serif;
+  align-self: start;
 }
 
 .dashboard-header {
@@ -72,10 +74,11 @@
   .summary-card {
     flex: 1;
     min-width: fit-content;
-    background-color: white;
+    background-color: rgb(224, 232, 255);
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: solid 1px rgba(0,0,0,0.1);
+    // box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     text-align: center;
     
     h3 {
@@ -104,8 +107,14 @@
   }
 }
 
+.dashboard-header-buttons {
+  display:flex; 
+  justify-content: space-between;
+  min-height: 35px;
+}
+
 .dashboard-card {
-  background-color: white;
+  background-color: rgb(224, 232, 255);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -116,7 +125,7 @@
     font-weight: 500;
     margin-bottom: 20px;
     color: #2c3e50;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
     padding-bottom: 10px;
   }
 }
@@ -124,7 +133,7 @@
 .checkin-list {
   .checkin-item {
     padding: 12px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
     
     &:last-child {
       border-bottom: none;
@@ -140,7 +149,7 @@
       font-size: 12px;
       padding: 4px 8px;
       border-radius: 12px;
-      background-color: #f0f0f0;
+      background-color: #9fb9f3;
       
       &.happy {
         background-color: #c8e6c9;
