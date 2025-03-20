@@ -65,7 +65,15 @@ import { Component } from '@angular/core';
                 <strong>checkins</strong> and <strong>work-updates</strong>.
                 &nbsp;&nbsp;&nbsp; From there, Peachy will send hourly messages.
               </p>
-              <p>3. Enjoy!</p>
+              <p>
+                3. When responding from the specific channels, prefix your
+                message with: <br />&nbsp;&nbsp;&nbsp;For
+                <strong>checkins</strong>: add <strong>checkins</strong> e.g.
+                checkin i am happy <br />&nbsp;&nbsp;&nbsp;For
+                <strong>work-updates</strong>: add <strong>working</strong> e.g.
+                working on life
+              </p>
+              <p style="text-align: center; color: #aaa">made with &lt;3</p>
             </div>
           </div>
         </div>
