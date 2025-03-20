@@ -34,24 +34,24 @@
   </div>
 
   <div *ngIf="!isLoading" class="dashboard-content">
-    <div class="dashboard-card summary-cards">
+    <div class="dashboard-card-header summary-cards">
       <div class="summary-card">
         <h3>Total Checkins</h3>
-        <p class="number">{{ checkins.length }}</p>
+        <p class="number">{{ recentCheckins.length }}</p>
       </div>
       <div class="summary-card">
         <h3>Total Works</h3>
-        <p class="number">{{ works.length }}</p>
+        <p class="number">{{ recentWorks.length }}</p>
       </div>
       <div class="summary-card">
         <h3>Total Messages</h3>
-        <p class="number">{{ (checkins.length || 0) + (works.length || 0) }}</p>
+        <p class="number">{{ (recentCheckins.length || 0) + (recentWorks.length || 0) }}</p>
       </div>
     </div>
 
     <div class="dashboard-grid">
       <!-- Recent Checkins -->
-      <div class="dashboard-card">
+      <div class="dashboard-div">
         <h2>Recent Checkins</h2>
         <div class="checkin-list">
           <div *ngFor="let checkin of recentCheckins" class="checkin-item">
@@ -72,7 +72,7 @@
       </div>
 
       <!-- Recent Works -->
-      <div class="dashboard-card">
+      <div class="dashboard-div">
         <h2>Recent Works</h2>
         <div class="checkin-list">
           <div *ngFor="let work of recentWorks" class="checkin-item">

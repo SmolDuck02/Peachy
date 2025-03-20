@@ -6,13 +6,13 @@ import { Router } from '@angular/router';
 import { User } from 'firebase/auth';
 import { catchError, forkJoin, of } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ModalButtonComponent } from '../modal-button/modal-button.component';
 import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
 import {
   UserButtonComponent,
   UserSettings,
 } from '../user-button/user-button.component';
-import { ModalButtonComponent } from "../modal-button/modal-button.component";
 
 interface Chat {
   id: number;
@@ -26,18 +26,29 @@ interface Checkin {
   id: number;
   mood: string;
   message_id: number;
+  message?: string; // Add these if they're coming from the API
+  timestamp?: string; // Add these if they're coming from the API
+  user_id?: string;
 }
 
 interface Work {
   id: number;
   type: string;
   message_id: number;
+  message?: string; // Add these if they're coming from the API
+  timestamp?: string; // Add these if they're coming from the API
+  user_id?: string;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, UserButtonComponent, ModalButtonComponent],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    UserButtonComponent,
+    ModalButtonComponent,
+  ],
   templateUrl: './dashobard.component.html',
   styleUrls: ['./dashobard.component.scss'],
 })
@@ -143,53 +154,57 @@ export class DashboardComponent implements OnInit {
   }
 
   processData(): void {
-    // Process recent checkins with their associated messages
-    this.recentCheckins = this.checkins
-      .map((checkin) => {
-        const relatedChat = this.chats.find(
-          (chat) => chat.id === checkin.message_id
-        );
-        return {
-          ...checkin,
-          message: relatedChat?.message || '',
-          timestamp: relatedChat?.timestamp || '',
-          user_id: relatedChat?.user_id || '',
-        };
-      })
-      .sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      )
-      .slice(0, 10);
+     if (!this.selectedPeriod) return;
 
-    this.recentWorks = this.works
-      .map((work) => {
-        const relatedChat = this.chats.find(
-          (chat) => chat.id === work.message_id
-        );
-        return {
-          ...work,
-          message: relatedChat?.message || '',
-          timestamp: relatedChat?.timestamp || '',
-          user_id: relatedChat?.user_id || '',
-        };
-      })
-      .sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      )
-      .slice(0, 10);
+     const now = new Date();
+
+     const startDate = new Date(); // Adjust this based on the period
+     if (this.selectedPeriod === 'day') {
+       startDate.setDate(now.getDate() - 1);
+     } else if (this.selectedPeriod === 'week') {
+       startDate.setDate(now.getDate() - 7);
+     } else if (this.selectedPeriod === 'month') {
+       startDate.setMonth(now.getMonth() - 1);
+     }
+
+
+     this.recentCheckins = this.checkins.filter((checkin) => {
+       const checkinDate = new Date(checkin.timestamp!);
+       return checkinDate >= startDate;
+     });
+
+     this.recentWorks = this.works.filter((work) => {
+       const workDate = new Date(work.timestamp!);
+       return workDate >= startDate;
+     });
+
+    // // Process recent checkins with their associated messages
+    // this.recentCheckins = this.checkins
+    //   .sort(
+    //     (a, b) =>
+    //       new Date(b.timestamp || '').getTime() -
+    //       new Date(a.timestamp || '').getTime()
+    //   )
+    //   .slice(0, 10);
+
+    // this.recentWorks = this.works
+    //   .sort(
+    //     (a, b) =>
+    //       new Date(b.timestamp || '').getTime() -
+    //       new Date(a.timestamp || '').getTime()
+    //   )
+    //   .slice(0, 10);
 
     // Calculate mood distribution
     this.moodDistribution = {};
-    this.checkins.forEach((checkin) => {
+    this.recentCheckins.forEach((checkin) => {
       this.moodDistribution[checkin.mood] =
         (this.moodDistribution[checkin.mood] || 0) + 1;
     });
 
     // Calculate work type distribution
     this.workTypeDistribution = {};
-    this.works.forEach((work) => {
+    this.recentWorks.forEach((work) => {
       this.workTypeDistribution[work.type] =
         (this.workTypeDistribution[work.type] || 0) + 1;
     });
