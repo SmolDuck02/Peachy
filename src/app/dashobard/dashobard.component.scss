@@ -21,7 +21,6 @@
 
 /* dashboard.component.scss */
 .dashboard-container {
-  width: 600px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 20px;
@@ -142,10 +141,13 @@
   padding: 20px;
   padding-top: 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  max-height: 24rem;
+  max-height: 28rem;
   overflow-y: auto;
+  overflow-x: hidden;
   height: fit-content;
   position: relative;
+  min-height: 160px;
+  width: 100%;
 
   h2 {
     margin-top: 0px;
@@ -246,7 +248,7 @@
   h2 {
     margin-top: 0px;
     font-size: 18px;
-    font-weight: 500;
+    font-weight: bold;
     margin-bottom: 0px;
     color: #2c3e50;
     border-bottom: 1px solid rgba(0,0,0,0.1);
@@ -255,6 +257,26 @@
     top: 0; // Ensures it sticks at the top
     background-color: rgb(224, 232, 255); // Prevents text from becoming transparent
     z-index: 10; // Ensures it stays above scrolling content
+  }
+}
+
+
+.horizontal-row {
+  display: flex;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
+  .dashboard-div {
+    flex: 1;
+  }
+
+  .chart-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 

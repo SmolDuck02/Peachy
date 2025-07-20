@@ -7,6 +7,7 @@ import { User } from 'firebase/auth';
 import { catchError, forkJoin, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ModalButtonComponent } from '../modal-button/modal-button.component';
+import { MoodChartComponent } from '../mood-chart/mood-chart.component';
 import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
 import {
@@ -48,19 +49,29 @@ interface Work {
     HttpClientModule,
     UserButtonComponent,
     ModalButtonComponent,
+    MoodChartComponent
   ],
   templateUrl: './dashobard.component.html',
   styleUrls: ['./dashobard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   chats: Chat[] = [];
-  checkins: Checkin[] = [];
-  works: Work[] = [];
+  allCheckins: Checkin[] = [];
+  allWorks: Work[] = [];
 
   recentCheckins: any[] = [];
   recentWorks: any[] = [];
-  moodDistribution: any = {};
-  workTypeDistribution: any = {};
+  moodDistribution!: {
+    title: string;
+    labels: string[];
+    values: number[];
+  };
+
+  workTypeDistribution!: {
+    title: string;
+    labels: string[];
+    values: number[];
+  };
 
   isLoading = true;
   selectedPeriod = 'week';
@@ -109,7 +120,7 @@ export class DashboardComponent implements OnInit {
 
     // Make API calls to fetch data from all tables
     forkJoin({
-      checkins: this.http
+      allCheckins: this.http
         .get<Checkin[]>(
           `${environment.API_ENDPOINT}/checkins/checkins-by-mood/${this.user?.uid}`
         )
@@ -119,7 +130,7 @@ export class DashboardComponent implements OnInit {
             return of([{ id: 2, mood: 'lethargic', message_id: 1 }]); // Fallback mock data
           })
         ),
-      works: this.http
+      allWorks: this.http
         .get<Work[]>(
           `${environment.API_ENDPOINT}/works/works-by-type/${this.user?.uid}`
         )
@@ -130,10 +141,10 @@ export class DashboardComponent implements OnInit {
           })
         ),
     }).subscribe((data) => {
-      this.checkins = data.checkins;
-      this.works = data.works;
+      this.allCheckins = data.allCheckins;
+      this.allWorks = data.allWorks;
 
-      this.processData();
+      this.filterDataByPeriod();
       this.isLoading = false;
     });
   }
@@ -153,66 +164,94 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  processData(): void {
-     if (!this.selectedPeriod) return;
-
-     const now = new Date();
-
-     const startDate = new Date(); // Adjust this based on the period
-     if (this.selectedPeriod === 'day') {
-       startDate.setDate(now.getDate() - 1);
-     } else if (this.selectedPeriod === 'week') {
-       startDate.setDate(now.getDate() - 7);
-     } else if (this.selectedPeriod === 'month') {
-       startDate.setMonth(now.getMonth() - 1);
-     }
-
-
-     this.recentCheckins = this.checkins.filter((checkin) => {
-       const checkinDate = new Date(checkin.timestamp!);
-       return checkinDate >= startDate;
-     });
-
-     this.recentWorks = this.works.filter((work) => {
-       const workDate = new Date(work.timestamp!);
-       return workDate >= startDate;
-     });
-
-    // // Process recent checkins with their associated messages
-    // this.recentCheckins = this.checkins
-    //   .sort(
-    //     (a, b) =>
-    //       new Date(b.timestamp || '').getTime() -
-    //       new Date(a.timestamp || '').getTime()
-    //   )
-    //   .slice(0, 10);
-
-    // this.recentWorks = this.works
-    //   .sort(
-    //     (a, b) =>
-    //       new Date(b.timestamp || '').getTime() -
-    //       new Date(a.timestamp || '').getTime()
-    //   )
-    //   .slice(0, 10);
-
-    // Calculate mood distribution
-    this.moodDistribution = {};
-    this.recentCheckins.forEach((checkin) => {
-      this.moodDistribution[checkin.mood] =
-        (this.moodDistribution[checkin.mood] || 0) + 1;
-    });
-
-    // Calculate work type distribution
-    this.workTypeDistribution = {};
-    this.recentWorks.forEach((work) => {
-      this.workTypeDistribution[work.type] =
-        (this.workTypeDistribution[work.type] || 0) + 1;
-    });
+  mapToChartData(record: Record<string, number>, title: string): {
+    title: string;
+    labels: string[];
+    values: number[];
+  } {
+    const labels = Object.keys(record);
+    const values = Object.values(record);
+    return { title, labels, values };
   }
 
-  changePeriod(period: string): void {
+  filterDataByPeriod() {
+     const now = new Date();
+
+    this.recentCheckins = this.allCheckins.filter((checkin) => {
+      const checkinDate = new Date(checkin.timestamp || new Date());
+      switch (this.selectedPeriod) {
+        case 'day':
+          return (
+            checkinDate.toDateString() === now.toDateString()
+          );
+        case 'week': {
+          const startOfWeek = new Date(now);
+          startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
+          return checkinDate >= startOfWeek && checkinDate <= endOfWeek;
+        }
+        case 'month':
+          return (
+            checkinDate.getMonth() === now.getMonth() &&
+            checkinDate.getFullYear() === now.getFullYear()
+          );
+        case 'all':
+        default:
+          return true;
+      }
+    }).sort((a, b) => new Date(b.timestamp ?? 0).getTime() - new Date(a.timestamp ?? 0).getTime());
+
+    this.recentWorks = this.allWorks.filter((work) => {
+      const workDate = new Date(work.timestamp || new Date());
+      switch (this.selectedPeriod) {
+        case 'day':
+          return workDate.toDateString() === now.toDateString();
+        case 'week': {
+          const startOfWeek = new Date(now);
+          startOfWeek.setDate(now.getDate() - now.getDay());
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
+          return workDate >= startOfWeek && workDate <= endOfWeek;
+        }
+        case 'month':
+          return (
+            workDate.getMonth() === now.getMonth() &&
+            workDate.getFullYear() === now.getFullYear()
+          );
+        case 'all':
+        default:
+          return true;
+      }
+    }).sort((a, b) => new Date(b.timestamp ?? 0).getTime() - new Date(a.timestamp ?? 0).getTime());
+
+    this.moodDistribution = this.mapToChartData(
+      this.calculateDistribution(this.recentCheckins, 'mood'),
+      'Mood Distribution'
+    );
+
+    this.workTypeDistribution = this.mapToChartData(
+      this.calculateDistribution(this.recentWorks, 'type'),
+      'Work Type Distribution'
+    );
+
+  }
+  
+  calculateDistribution<T extends Record<string, any>>(data: T[], key: keyof T): Record<string, number> {
+    const distribution: Record<string, number> = {};
+    data.forEach((item) => {
+      const k = item[key];
+      if (k) {
+        distribution[k] = (distribution[k] || 0) + 1;
+      }
+    });
+    return distribution;
+  }
+
+
+  changePeriod(period: 'day' | 'week' | 'month' | 'all') {
     this.selectedPeriod = period;
-    this.loadData();
+    this.filterDataByPeriod();
   }
 
   // Add these methods to the DashboardComponent class

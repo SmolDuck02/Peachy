@@ -10,7 +10,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { Chart, registerables } from 'chart.js';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 @Component({
   selector: 'app-mood-chart',
@@ -22,16 +22,15 @@ import { Chart, registerables } from 'chart.js';
 export class MoodChartComponent implements AfterViewInit, OnChanges {
   @Input() chartData!: { title: string; labels: string[]; values: number[] };
   @ViewChild('moodChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
-  private chartInstance: Chart | null = null; // Store Chart instance
+  private chartInstance: Chart<'doughnut'> | null = null;
 
   constructor(@Inject(PLATFORM_ID) private platformId: any) {
     Chart.register(...registerables);
   }
 
   ngAfterViewInit() {
-    // Delay rendering until canvas is available
     setTimeout(() => {
-      if (this.chartData) {
+      if (this.chartData && this.chartData.labels.length > 0) {
         this.renderChart();
       }
     });
@@ -39,9 +38,6 @@ export class MoodChartComponent implements AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['chartData'] && changes['chartData'].currentValue) {
-      console.log('Updated chartData:', this.chartData);
-
-      // Ensure chart updates when data changes
       if (this.chartInstance) {
         this.chartInstance.destroy();
       }
@@ -67,43 +63,46 @@ export class MoodChartComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    // Destroy previous chart instance before creating a new one
     if (this.chartInstance) {
       this.chartInstance.destroy();
     }
 
-    this.chartInstance = new Chart(ctx, {
+    const doughnutChartConfig: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
       options: {
+        maintainAspectRatio: false, 
         plugins: {
           title: {
             display: true,
-            text: this.chartData.title, // ✅ Change this to your desired title
+            text: this.chartData.title,
             font: {
               size: 18,
             },
-            color: '#333', // Optional: Set text color
+            color: '#2c3e50',
           },
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#2c3e50',
+            }
+          }
         },
       },
       data: {
         labels: this.chartData.labels, // Use actual input data
         datasets: [
           {
-            label: 'Work Type Distribution',
+            label: this.chartData.title,
             data: this.chartData.values,
             backgroundColor: [
-              'rgba(255, 99, 132, 0.7)',
-              'rgba(54, 162, 235, 0.7)',
-              'rgba(255, 206, 86, 0.7)',
-              'rgba(75, 192, 192, 0.7)',
-              'rgba(153, 102, 255, 0.7)',
-              'rgba(255, 159, 64, 0.7)',
+              '#3f51b5', '#5c6bc0', '#7986cb', '#9fa8da', '#c5cae9', '#e8eaf6'
             ],
             borderWidth: 1,
           },
         ],
       },
-    });
+    };
+
+    this.chartInstance = new Chart<'doughnut'>(ctx, doughnutChartConfig);
   }
 }
