@@ -1,11 +1,9 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { User } from '@angular/fire/auth';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ClickOutsideDirective } from '../directives/click-outside.directive';
-import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
 
 export interface UserSettings {
@@ -60,12 +58,12 @@ export interface UserSettings {
   ],
 })
 export class UserButtonComponent implements OnInit {
-  private authService = inject(AuthService);
+  // private authService = inject(AuthService);
   private router = inject(Router);
   private discordAuthService = inject(DiscordAuthService);
   private platformId = inject(PLATFORM_ID);
 
-  user: Partial<User> | null = null;
+  user: { displayName: string; email: string; uid: string } | null = null;
   isDropdownOpen = false;
   showSettings = false;
 
@@ -85,16 +83,16 @@ export class UserButtonComponent implements OnInit {
           email: user.email,
           uid: user.id,
         };
-        this.user = formattedUser as Partial<User>;
+        this.user = formattedUser as { displayName: string; email: string; uid: string };
         // this.router.navigate(['/dashboard']);
       });
     } else {
-      this.authService.user$.subscribe((user) => {
-        this.user = user;
-        if (user) {
-          this.loadUserSettings();
-        }
-      });
+      // this.authService.user$.subscribe((user) => {
+      //   this.user = user;
+      //   if (user) {
+      //     this.loadUserSettings();
+      //   }
+      // });
     }
   }
 
@@ -123,7 +121,7 @@ export class UserButtonComponent implements OnInit {
 
   async login(): Promise<void> {
     try {
-      await this.authService.loginWithGoogle();
+      // await this.authService.loginWithGoogle();
     
     } catch (error: any) {
       console.error('Login failed', error);
@@ -138,7 +136,7 @@ export class UserButtonComponent implements OnInit {
         localStorage.removeItem('discord_refresh_token');
         localStorage.removeItem('discord_token_expiry');
       }
-      await this.authService.logout();
+      this.router.navigate(['/login']);
       this.isDropdownOpen = false;
    
     } catch (error: any) {

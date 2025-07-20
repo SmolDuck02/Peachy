@@ -3,12 +3,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from 'firebase/auth';
 import { catchError, forkJoin, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ModalButtonComponent } from '../modal-button/modal-button.component';
 import { MoodChartComponent } from '../mood-chart/mood-chart.component';
-import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
 import { KeepAliveService } from '../services/keep-alive.service';
 import {
@@ -78,13 +76,13 @@ export class DashboardComponent implements OnInit {
   selectedPeriod = 'week';
 
   constructor(private http: HttpClient) {}
-  private authService = inject(AuthService);
+  // private authService = inject(AuthService);
   private router = inject(Router);
   private discordAuthService = inject(DiscordAuthService);
   private keepAliveService = inject(KeepAliveService);
   private platformId = inject(PLATFORM_ID);
 
-  user: Partial<User> | null = null;
+  user: { displayName: string; email: string; uid: string } | null = null;
   isDropdownOpen = false;
   showSettings = false;
 
@@ -105,17 +103,17 @@ export class DashboardComponent implements OnInit {
           email: user.email,
           uid: user.id,
         };
-        this.user = formattedUser as Partial<User>;
+        this.user = formattedUser as { displayName: string; email: string; uid: string };
         this.loadData();
       });
     } else {
-      this.authService.user$.subscribe((user) => {
-        this.user = user;
-        if (user) {
-          this.loadUserSettings();
-          this.loadData();
-        }
-      });
+      // this.authService.user$.subscribe((user) => {
+      //   this.user = user;
+      //   if (user) {
+      //     this.loadUserSettings();
+      //     this.loadData();
+      //   }
+      // });
     }
   }
 

@@ -1,8 +1,6 @@
 import { inject } from '@angular/core';
 import { Router, Routes } from '@angular/router';
-import { of, switchMap, take } from 'rxjs';
 import { AuthGuard } from './guards/auth.guard';
-import { AuthService } from './services/auth.service';
 import { DiscordAuthService } from './services/discord-auth.service';
 
 export const routes: Routes = [
@@ -20,7 +18,7 @@ export const routes: Routes = [
 
     canMatch: [
       () => {
-        const authService = inject(AuthService);
+        // const authService = inject(AuthService);
         const discordAuthService = inject(DiscordAuthService);
         const router = inject(Router);
         if (!discordAuthService.isAuthenticated()) {
@@ -28,17 +26,17 @@ export const routes: Routes = [
         }
         router.navigateByUrl('/dashboard');
         return false;
-        return authService.isLoggedIn().pipe(
-          take(1),
-          switchMap((isLoggedIn) => {
-            if (isLoggedIn || discordAuthService.isAuthenticated()) {
-              // Using navigateByUrl with replaceUrl to completely replace the current navigation
-              router.navigateByUrl('/dashboard');
-              return of(false);
-            }
-            return of(true);
-          })
-        );
+        // return authService.isLoggedIn().pipe(
+        //   take(1),
+        //   switchMap((isLoggedIn) => {
+        //     if (isLoggedIn || discordAuthService.isAuthenticated()) {
+        //       // Using navigateByUrl with replaceUrl to completely replace the current navigation
+        //       router.navigateByUrl('/dashboard');
+        //       return of(false);
+        //     }
+        //     return of(true);
+        //   })
+        // );
       },
     ],
     loadComponent: () =>

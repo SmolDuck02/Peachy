@@ -6,7 +6,6 @@ import {
   inject,
   PLATFORM_ID,
 } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
 import { KeepAliveService } from '../services/keep-alive.service';
 
@@ -23,7 +22,7 @@ export class LoginComponent implements AfterViewInit {
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
-  private authService = inject(AuthService);
+  // private authService = inject(AuthService);
   private keepAliveService = inject(KeepAliveService);
   private particleElements: HTMLElement[] = [];
 
@@ -50,7 +49,7 @@ export class LoginComponent implements AfterViewInit {
 
   async login() {
     try {
-      await this.authService.loginWithGoogle();
+      // await this.authService.loginWithGoogle();
     } catch (error) {
       console.error('Login failed', error);
     }
