@@ -10,6 +10,7 @@ import { ModalButtonComponent } from '../modal-button/modal-button.component';
 import { MoodChartComponent } from '../mood-chart/mood-chart.component';
 import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
+import { KeepAliveService } from '../services/keep-alive.service';
 import {
   UserButtonComponent,
   UserSettings,
@@ -80,6 +81,7 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private discordAuthService = inject(DiscordAuthService);
+  private keepAliveService = inject(KeepAliveService);
   private platformId = inject(PLATFORM_ID);
 
   user: Partial<User> | null = null;
@@ -94,6 +96,8 @@ export class DashboardComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.keepAliveService.pingBackend();
+    
     if (this.discordAuthService.isAuthenticated()) {
       this.discordAuthService.getUserInfo().subscribe((user) => {
         const formattedUser = {
@@ -143,7 +147,7 @@ export class DashboardComponent implements OnInit {
     }).subscribe((data) => {
       this.allCheckins = data.allCheckins;
       this.allWorks = data.allWorks;
-
+    
       this.filterDataByPeriod();
       this.isLoading = false;
     });
@@ -175,7 +179,7 @@ export class DashboardComponent implements OnInit {
   }
 
   filterDataByPeriod() {
-     const now = new Date();
+    const now = new Date();
 
     this.recentCheckins = this.allCheckins.filter((checkin) => {
       const checkinDate = new Date(checkin.timestamp || new Date());

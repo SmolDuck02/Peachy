@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { DiscordAuthService } from '../services/discord-auth.service';
+import { KeepAliveService } from '../services/keep-alive.service';
 
 @Component({
   selector: 'app-login',
@@ -23,11 +24,13 @@ export class LoginComponent implements AfterViewInit {
   ) {}
 
   private authService = inject(AuthService);
-
+  private keepAliveService = inject(KeepAliveService);
   private particleElements: HTMLElement[] = [];
 
   
   ngAfterViewInit(): void {
+    this.keepAliveService.pingBackend();
+
     if (isPlatformBrowser(this.platformId)) {
       // Ensure we only run this code in the browser
       setTimeout(() => {
