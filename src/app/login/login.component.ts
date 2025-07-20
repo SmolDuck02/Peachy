@@ -40,11 +40,13 @@ export class LoginComponent implements AfterViewInit {
 
   ngOnDestroy(): void {
     // Clean up particles when component is destroyed
-    this.particleElements.forEach((particle) => {
-      if (particle.parentNode) {
-        particle.parentNode.removeChild(particle);
-      }
-    });
+    if (isPlatformBrowser(this.platformId)) {
+      this.particleElements.forEach((particle) => {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      });
+    }
   }
 
   async login() {
