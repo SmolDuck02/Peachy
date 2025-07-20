@@ -13,7 +13,7 @@ import { environment } from '../../environments/environment';
 export class DiscordAuthService {
   private readonly DISCORD_API = 'https://discord.com/api';
   private readonly BACKEND_API = environment.API_ENDPOINT;
-  private readonly REDIRECT_URI = `${environment.API_ENDPOINT}/auth/callback`;
+  private readonly REDIRECT_URI = `${environment.REDIRECT_URI}/auth/callback`;
   private readonly SCOPE = 'identify email guilds';
 
   private jwtHelper = new JwtHelperService();
@@ -34,6 +34,7 @@ export class DiscordAuthService {
       console.error('Discord login can only be initiated in the browser');
       return;
     }
+    console.log(this.REDIRECT_URI)
     const DISCORD_CLIENT_ID = "1347209912316461210";
     const url = `${this.DISCORD_API}/oauth2/authorize?client_id=${
       DISCORD_CLIENT_ID

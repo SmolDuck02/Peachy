@@ -10,5 +10,6 @@ export const environment = {
     measurementId: 'G-Y6N6RJWN2Q',
   },
   API_ENDPOINT:"http://localhost:3000",
+  REDIRECT_URI: 'http://localhost:4200',
 };
 
